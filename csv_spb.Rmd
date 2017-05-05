@@ -1,0 +1,104 @@
+---
+title: "lda_texts"
+output: html_document
+---
+
+```{r all datasets}
+events=read.csv("~/spbRecommend/events.csv")
+places=read.csv("~/spbRecommend/places.csv")
+
+likes=read.csv("/students/aabakhitova/spbRecommend/likes_vk2000.csv")
+posts=read.csv("/students/aabakhitova/spbRecommend/vk_posts_light.csv")
+```
+
+```{r map}
+library(ggplot2)
+library(ggmap)
+
+addresses = places$address
+addresses = paste0(addresses, ", Санкт-Петербург")
+addresses=addresses%>%tail(857)
+
+getGeoDetails <- function(address){
+  geo_reply = geocode(address, output='all', messaging=TRUE, override_limit=TRUE)
+  answer <- data.frame(lat=NA, long=NA, accuracy=NA, formatted_address=NA, address_type=NA, status=NA)
+  answer$status <- geo_reply$status
+  while(geo_reply$status == "OVER_QUERY_LIMIT"){
+    print("OVER QUERY LIMIT - Pausing for 1 hour at:") 
+    time <- Sys.time()
+    print(as.character(time))
+    Sys.sleep(60*60)
+    geo_reply = geocode(address, output='all', messaging=TRUE, override_limit=TRUE)
+       answer$status <- geo_reply$status
+  }
+  if (geo_reply$status != "OK"){
+       return(answer)
+   }
+  answer$lat <- geo_reply$results[[1]]$geometry$location$lat
+   answer$long <- geo_reply$results[[1]]$geometry$location$lng   
+   if (length(geo_reply$results[[1]]$types) > 0){
+       answer$accuracy <- geo_reply$results[[1]]$types[[1]]
+   }
+   answer$address_type <- paste(geo_reply$results[[1]]$types, collapse=',')
+   answer$formatted_address <- geo_reply$results[[1]]$formatted_address
+ 
+   return(answer)
+}
+
+geocoded <- data.frame()
+startindex <- 1
+
+
+# Start the geocoding process - address by address. geocode() function takes care of query speed limit. 2500 в сутки можно только.
+for (ii in seq(startindex, length(addresses))){
+   print(paste("Working on index", ii, "of", length(addresses)))
+   result = getGeoDetails(addresses[ii]) 
+   print(result$status)     
+   result$index <- ii
+   geocoded <- rbind(geocoded, result)
+}
+ 
+data$lat <- geocoded$lat
+data$long <- geocoded$long
+data$accuracy <- geocoded$accuracy
+
+```
+```{r lda on posts}
+library(mallet)
+library(dplyr)
+library(stringr)
+
+posts$id=as.character(posts$id)
+posts$text=as.character(posts$text)
+
+# токенизация текстов
+mallet.instances <- mallet.import(posts$id, posts$text, "stopwords.txt", token.regexp = "[\\p{L}\\p{N}-]*\\p{L}+")
+
+## настраиваем параметры модели и загружаем данные
+topic.model <- MalletLDA(num.topics=100) # количество тем
+topic.model$loadDocuments(mallet.instances) 
+topic.model$setAlphaOptimization(20, 50) # оптимизация гиперпараметров
+
+## собираем статистику: словарь и частотность
+vocabulary <- topic.model$getVocabulary() # словарь корпуса
+word.freqs <- mallet.word.freqs(topic.model) # таблица частотности слов
+
+## параметр — количество итераций
+topic.model$train(1000)
+
+## выбор наилучшей темы для каждого токена
+topic.model$maximize(10)
+
+## таблица распределения тем по документам
+doc.topics <- mallet.doc.topics(topic.model, smoothed=TRUE, normalized=TRUE)
+## таблица распределения слов по темам
+topic.words <- mallet.topic.words(topic.model, smoothed=TRUE, normalized=TRUE)
+
+## просмотр топ-10 слов для всех тем
+df = data.frame()
+for (k in 1:nrow(topic.words)) {
+  top <- paste(mallet.top.words(topic.model, topic.words[k,], 20)$words,collapse=" ")
+  df = rbind(df, data.frame(k, top))
+}
+write.csv(df,"categores_posts.csv")
+```
