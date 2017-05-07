@@ -102,3 +102,75 @@ for (k in 1:nrow(topic.words)) {
 }
 write.csv(df,"categores_posts.csv")
 ```
+
+```{r lda on events}
+events$id=as.character(events$id)
+events$description=as.character(events$description)
+
+# токенизация текстов
+mallet.instances <- mallet.import(events$id, events$description, "stopwords.txt", token.regexp = "[\\p{L}\\p{N}-]*\\p{L}+")
+
+## настраиваем параметры модели и загружаем данные
+topic.model <- MalletLDA(num.topics=100) # количество тем
+topic.model$loadDocuments(mallet.instances) 
+topic.model$setAlphaOptimization(20, 50) # оптимизация гиперпараметров
+
+## собираем статистику: словарь и частотность
+vocabulary <- topic.model$getVocabulary() # словарь корпуса
+word.freqs <- mallet.word.freqs(topic.model) # таблица частотности слов
+
+## параметр — количество итераций
+topic.model$train(1000)
+
+## выбор наилучшей темы для каждого токена
+topic.model$maximize(10)
+
+## таблица распределения тем по документам
+doc.topics <- mallet.doc.topics(topic.model, smoothed=TRUE, normalized=TRUE)
+## таблица распределения слов по темам
+topic.words <- mallet.topic.words(topic.model, smoothed=TRUE, normalized=TRUE)
+
+## просмотр топ-10 слов для всех тем
+df = data.frame()
+for (k in 1:nrow(topic.words)) {
+  top <- paste(mallet.top.words(topic.model, topic.words[k,], 20)$words,collapse=" ")
+  df = rbind(df, data.frame(k, top))
+}
+write.csv(df,"categores_events.csv")
+```
+
+```{r lda on places}
+places$id=as.character(places$id)
+places$description=as.character(places$description)
+
+# токенизация текстов
+mallet.instances <- mallet.import(places$id, places$description, "stopwords.txt", token.regexp = "[\\p{L}\\p{N}-]*\\p{L}+")
+
+## настраиваем параметры модели и загружаем данные
+topic.model <- MalletLDA(num.topics=100) # количество тем
+topic.model$loadDocuments(mallet.instances) 
+topic.model$setAlphaOptimization(20, 50) # оптимизация гиперпараметров
+
+## собираем статистику: словарь и частотность
+vocabulary <- topic.model$getVocabulary() # словарь корпуса
+word.freqs <- mallet.word.freqs(topic.model) # таблица частотности слов
+
+## параметр — количество итераций
+topic.model$train(1000)
+
+## выбор наилучшей темы для каждого токена
+topic.model$maximize(10)
+
+## таблица распределения тем по документам
+doc.topics <- mallet.doc.topics(topic.model, smoothed=TRUE, normalized=TRUE)
+## таблица распределения слов по темам
+topic.words <- mallet.topic.words(topic.model, smoothed=TRUE, normalized=TRUE)
+
+## просмотр топ-10 слов для всех тем
+df = data.frame()
+for (k in 1:nrow(topic.words)) {
+  top <- paste(mallet.top.words(topic.model, topic.words[k,], 20)$words,collapse=" ")
+  df = rbind(df, data.frame(k, top))
+}
+write.csv(df,"categores_places.csv")
+```
