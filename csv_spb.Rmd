@@ -15,53 +15,11 @@ posts=read.csv("/students/aabakhitova/spbRecommend/vk_posts_light.csv")
 library(ggplot2)
 library(ggmap)
 
-addresses = places$address
-addresses = paste0(addresses, ", Санкт-Петербург")
-addresses=addresses%>%tail(857)
+map = get_map(location = c("санкт-петербург"), zoom = 11, color = "bw", maptype = "roadmap")
 
-getGeoDetails <- function(address){
-  geo_reply = geocode(address, output='all', messaging=TRUE, override_limit=TRUE)
-  answer <- data.frame(lat=NA, long=NA, accuracy=NA, formatted_address=NA, address_type=NA, status=NA)
-  answer$status <- geo_reply$status
-  while(geo_reply$status == "OVER_QUERY_LIMIT"){
-    print("OVER QUERY LIMIT - Pausing for 1 hour at:") 
-    time <- Sys.time()
-    print(as.character(time))
-    Sys.sleep(60*60)
-    geo_reply = geocode(address, output='all', messaging=TRUE, override_limit=TRUE)
-       answer$status <- geo_reply$status
-  }
-  if (geo_reply$status != "OK"){
-       return(answer)
-   }
-  answer$lat <- geo_reply$results[[1]]$geometry$location$lat
-   answer$long <- geo_reply$results[[1]]$geometry$location$lng   
-   if (length(geo_reply$results[[1]]$types) > 0){
-       answer$accuracy <- geo_reply$results[[1]]$types[[1]]
-   }
-   answer$address_type <- paste(geo_reply$results[[1]]$types, collapse=',')
-   answer$formatted_address <- geo_reply$results[[1]]$formatted_address
- 
-   return(answer)
-}
-
-geocoded <- data.frame()
-startindex <- 1
-
-
-# Start the geocoding process - address by address. geocode() function takes care of query speed limit. 2500 в сутки можно только.
-for (ii in seq(startindex, length(addresses))){
-   print(paste("Working on index", ii, "of", length(addresses)))
-   result = getGeoDetails(addresses[ii]) 
-   print(result$status)     
-   result$index <- ii
-   geocoded <- rbind(geocoded, result)
-}
- 
-data$lat <- geocoded$lat
-data$long <- geocoded$long
-data$accuracy <- geocoded$accuracy
-
+ggmap(map) +
+  geom_point(data = places, aes(x = lon, y = lat), alpha = 0.5, size = 0.7)
+# позже придумаю что делать с категориями для цвета
 ```
 ```{r lda on posts}
 library(mallet)
@@ -173,4 +131,32 @@ for (k in 1:nrow(topic.words)) {
   df = rbind(df, data.frame(k, top))
 }
 write.csv(df,"categores_places.csv")
+```
+
+```{r}
+doctop=data.frame(doc.topics)
+places$topic=colnames(doctop)[max.col(doctop,ties.method="first")]
+write.csv(places,"places.csv")
+```
+```{r tags}
+library(tm)
+events$tags = gsub("'", "", events$tags)
+events$tags = gsub("\\[|\\]", " ", events$tags)
+events$tags = as.character(events$tags)
+events$tags <- removeWords(events$tags, stopwords("english"))
+wCorpus12 <- Corpus(VectorSource(events$tags))
+wCorpus12 <- tm_map(wCorpus12, content_transformer(tolower))
+wCorpus12 <- tm_map(wCorpus12, removePunctuation)
+wCorpus12 <- tm_map(wCorpus12, stemDocument)
+
+tdm.data <- TermDocumentMatrix(wCorpus12)
+words_matrix12 <- as.matrix(tdm.data)
+colnames(words_matrix12) <- events$tags
+
+words_freq12 <- sort(rowSums(words_matrix12), decreasing=TRUE)
+words_freq12 <- data.frame(freq = words_freq12, word = names(words_freq12))
+rownames(words_freq12) <- NULL  
+head(words_freq12)
+
+write.csv(words_freq12, "tagsfreq.csv")
 ```
