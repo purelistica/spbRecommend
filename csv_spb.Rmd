@@ -14,12 +14,17 @@ posts=read.csv("/students/aabakhitova/spbRecommend/vk_posts_light.csv")
 ```{r map}
 library(ggplot2)
 library(ggmap)
+library(tidyr)
+
+# places<-separate(places, col=subway, into=c("subway1", "subway2","subway3"), sep=",")
+places=inner_join(places,categores_places, by="topic")
 
 map = get_map(location = c("санкт-петербург"), zoom = 11, color = "bw", maptype = "roadmap")
 
 ggmap(map) +
-  geom_point(data = places, aes(x = lon, y = lat), alpha = 0.5, size = 0.7)
+  geom_point(data = places, aes(x = lon, y = lat, color=category), alpha = 0.5, size = 0.7)
 # позже придумаю что делать с категориями для цвета
+
 ```
 ```{r lda on posts}
 library(mallet)
@@ -138,25 +143,25 @@ doctop=data.frame(doc.topics)
 places$topic=colnames(doctop)[max.col(doctop,ties.method="first")]
 write.csv(places,"places.csv")
 ```
-```{r tags}
+```{r categories}
 library(tm)
-events$tags = gsub("'", "", events$tags)
-events$tags = gsub("\\[|\\]", " ", events$tags)
-events$tags = as.character(events$tags)
-events$tags <- removeWords(events$tags, stopwords("english"))
-wCorpus12 <- Corpus(VectorSource(events$tags))
+events$categories = gsub("'", "", events$categories)
+events$categories = gsub("\\[|\\]", " ", events$categories)
+events$categories = as.character(events$categories)
+events$categories <- removeWords(events$categories, stopwords("english"))
+wCorpus12 <- Corpus(VectorSource(events$categories))
 wCorpus12 <- tm_map(wCorpus12, content_transformer(tolower))
 wCorpus12 <- tm_map(wCorpus12, removePunctuation)
 wCorpus12 <- tm_map(wCorpus12, stemDocument)
 
 tdm.data <- TermDocumentMatrix(wCorpus12)
 words_matrix12 <- as.matrix(tdm.data)
-colnames(words_matrix12) <- events$tags
+colnames(words_matrix12) <- events$categories
 
 words_freq12 <- sort(rowSums(words_matrix12), decreasing=TRUE)
 words_freq12 <- data.frame(freq = words_freq12, word = names(words_freq12))
 rownames(words_freq12) <- NULL  
 head(words_freq12)
 
-write.csv(words_freq12, "tagsfreq.csv")
+write.csv(words_freq12, "catfreq.csv")
 ```
