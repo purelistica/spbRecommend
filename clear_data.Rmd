@@ -1,0 +1,16 @@
+---
+title: "Clear data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+data=read.csv("~//spbRecommend/users_get.csv", sep=",")
+library(tidyr)
+library(dplyr)
+separate_DF <- data %>% separate(bdate, c("Date", "Month", "Year"))
+dmy = separate_DF %>% select(Date, Month, Year)
+data = cbind(data, dmy)
+with_year = filter(data, Year > 0)
+write.csv(with_year, "only_year.csv")
+```
+
