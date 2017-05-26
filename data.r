@@ -63,9 +63,16 @@ match <- dplyr::select(match, kudago_id, users)
 
 ###
 
+res1 = res
+res1[is.na(res1)] = 0
+View(res1)
+dist_res = dist(res1)
 
+## users list
 
-
+users_list <- dplyr::group_by(cat, users) %>% summarise(tot_cnt=sum(cnt)) %>%
+  dplyr::filter(tot_cnt>2) %>% dplyr::select(1)
+write.csv(users_list, "users_list.csv", row.names = F)
 
 
 
