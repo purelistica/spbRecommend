@@ -47,6 +47,7 @@ cat <- data.frame(kudago_id = rep(all$kudago_id, sapply(s, length)), category = 
 
 # match of kudago & vk
 test <- inner_join(all, posts, by=c("site_url"="link"))
+write.csv(test, 'matched_kudago.csv')
 
 # users match
 match <- inner_join(test, likes, by="id")
@@ -70,31 +71,22 @@ res <- dcast(cat, users~category, value.var = 'cnt')
 
 ###
 
-
-
-###
-
-
-
-###
-
-res1 = res
-res1[is.na(res1)] = 0
-dist_res = dist(res1)
-
-
+res[is.na(res)] = 0
+dist_res = dist(res)
 
 res.hc <- hclust(dist_res, method = "ward.D2" )
 # plot(res.hc, cex = 0.6)
 # rect.hclust(res.hc, k = 4, border = 2:5)
 
-clust_2 <- cutree(res.hc, 2)
+# clust_2 <- cutree(res.hc, 2)
 clust_5 <- cutree(res.hc, 5)
 
-clust_fin <- as.data.frame(cbind(res1$users, clust_5))
+clust_fin <- as.data.frame(cbind(res$users, clust_5))
 clust_fin$clust_5 <- as.factor(clust_fin$clust_5)
 
 ###
+
+
 
 
 
