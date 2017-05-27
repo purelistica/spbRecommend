@@ -4,6 +4,7 @@ function(input, output, session) {
     model <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
@@ -21,6 +22,7 @@ function(input, output, session) {
     model1 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
@@ -38,7 +40,7 @@ function(input, output, session) {
     model2 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
-      data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
+      idata = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
       p2 = gsub('"' , "",substring(toString(as.character(data$description[p])),4))
@@ -55,6 +57,7 @@ function(input, output, session) {
     model4 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
@@ -72,6 +75,7 @@ function(input, output, session) {
     model5 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
@@ -89,6 +93,7 @@ function(input, output, session) {
     model6 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
