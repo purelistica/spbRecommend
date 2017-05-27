@@ -1,7 +1,7 @@
 function(input, output, session) {
   
 
-    model <- eventReactive(input$age, {
+    model <- eventReactive( c(input$age, input$sex), {
       # draw a random number and print it
       input$age
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
@@ -66,7 +66,7 @@ function(input, output, session) {
     output$desc6 <- renderText({
       model()$p12
     })
-
+    
     output$img <- renderImage({
       ret_img <- function(age){
         if (age > 25) {
