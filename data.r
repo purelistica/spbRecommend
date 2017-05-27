@@ -58,16 +58,20 @@ match <- dplyr::select(match, kudago_id, users)
 cat <- inner_join(cat, match, by = "kudago_id")
 cat <- group_by(cat, category, users) %>% summarize(cnt=n())
 
+cat_freq <- group_by(cat, category) %>% summarise(freq = sum(cnt))
+cat_freq <- dplyr::filter(cat_freq, freq > 2000)
+cat_flt <- anti_join(cat, cat_freq, by = 'category')
+
 ## users list
-users_list <- dplyr::group_by(cat, users) %>% summarise(tot_cnt=sum(cnt)) %>%
-  dplyr::filter(tot_cnt>2) %>% dplyr::select(1)
+users_list <- dplyr::group_by(cat_flt, users) %>% summarise(tot_cnt=sum(cnt)) %>%
+  dplyr::filter(tot_cnt>4) %>% dplyr::select(1)
 write.csv(users_list, "users_list.csv", row.names = F)
 
-cat <- inner_join(cat, users_list, by = "users")
+cat_flt <- inner_join(cat_flt, users_list, by = "users")
 
 library(reshape2)
 
-res <- dcast(cat, users~category, value.var = 'cnt')
+res <- dcast(cat_flt, users~category, value.var = 'cnt')
 
 ###
 
@@ -86,10 +90,15 @@ clust_fin$clust_5 <- as.factor(clust_fin$clust_5)
 
 ###
 
+# cluster descriptive
 
+descr_clust1 <- inner_join(cat_flt, clust_fin, by = c("users"="V1"))
+descr_clust2 <- dplyr::group_by(descr_clust1, clust_5, category) %>%
+  summarise(total_mentions = sum(cnt))
 
-
-
-
+dplyr::filter(descr_clust2, clust_5 == 1) %>% 
+  arrange(desc(total_mentions)) %>%
+  top_n(10)
+write.csv(descr_clust2, 'cluster_category_freq.csv', row.names = F)
 
 
