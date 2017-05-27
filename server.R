@@ -4,6 +4,7 @@ function(input, output, session) {
     model <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       data$description=str_replace(data$description, "</p>", "")
       p = sample(1:8000, 1)
@@ -22,6 +23,7 @@ function(input, output, session) {
     model1 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       data$description=str_replace(data$description, "</p>", "")
       p = sample(1:8000, 1)
@@ -40,8 +42,12 @@ function(input, output, session) {
     model2 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+<<<<<<< HEAD
+      idata = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
+=======
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       data$description=str_replace(data$description, "</p>", "")
+>>>>>>> 12bd72582c5bc32e9ce3a50dfe1f79e9df635c20
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
       p2 = gsub('"' , "",substring(toString(as.character(data$description[p])),4))
@@ -58,6 +64,7 @@ function(input, output, session) {
     model4 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       data$description=str_replace(data$description, "</p>", "")
       p = sample(1:8000, 1)
@@ -76,6 +83,7 @@ function(input, output, session) {
     model5 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       data$description=str_replace(data$description, "</p>", "")
       p = sample(1:8000, 1)
@@ -94,6 +102,7 @@ function(input, output, session) {
     model6 <- eventReactive(input$age, {
       # draw a random number and print it
       input$age
+      input$sex
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       data$description=str_replace(data$description, "</p>", "")
       p = sample(1:8000, 1)
