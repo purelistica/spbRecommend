@@ -1,16 +1,33 @@
----
-title: "Clear data"
-output: html_document
----
-
-```{r setup, include=FALSE}
-data=read.csv("~//spbRecommend/users_get.csv", sep=",")
-library(tidyr)
+```{r}
+library(ggplot2)
 library(dplyr)
-separate_DF <- data %>% separate(bdate, c("Date", "Month", "Year"))
-dmy = separate_DF %>% select(Date, Month, Year)
-data = cbind(data, dmy)
-with_year = filter(data, Year > 0)
-write.csv(with_year, "only_year.csv")
-```
+library(tidyr)
+data = read.csv("~//spbRecommend/users_get.csv", sep=",")
+d=select(data, bdate)
 
+user_year=data %>% separate(bdate, c("Date", "Month", "Year"))
+user_year=cbind(user_year, d)
+user_year=filter(user_year, Year > 0)
+write.csv(user_year, "users_year.csv")
+
+user_year= mutate(user_year, age= as.numeric(2017-as.numeric(Year)))
+not_empty = filter(user_year, age < 50)
+not_empty = filter(not_empty, occupationType != "NA")
+not_empty=mutate(not_empty, Gender=ifelse(sex==1, "female", "male"))
+not_empty$Gender = as.factor(not_empty$Gender)
+boxplot(not_empty$age ~ not_empty$Gender)
+
+f= dplyr::group_by(not_empty, sex, occupationType) %>%
+  summarise(count=n())
+f=mutate(f, Gender=ifelse(sex==1, "female", "male"))
+
+ggplot() + 
+  geom_bar(data = f, aes(x = sex, y = count, fill = occupationType, stat="identity"))
+
+ggplot(data=f, aes(x=Gender, y=count, fill = occupationType)) +
+    geom_bar(stat="identity") 
+
+p <- ggplot(not_empty, aes(Gender, age))
+p + geom_boxplot()+ 
+  ggtitle("Age")
+```
