@@ -1,0 +1,23 @@
+```{r,table-simple,results='asis'}
+library(readr)
+vk_posts_light <- read_csv("/students/aabakhitova/spb_files/vk_posts_light.csv")
+
+library(tidyverse)
+library(pander)
+panderOptions('table.split.table', Inf)
+tbl1 = vk_posts_light[1:4,] %>% select(post_id = id, owner_id:reposts.count, -text)
+pandoc.table(tbl1, style = "rmarkdown")
+```
+
+```{r,table-simple2,results='asis'}
+tbl2 = vk_posts_light[1:15,] %>% filter(geo.place.city == "Санкт-Петербург") %>% select(text)
+pandoc.table(tbl2, style = "sim")
+
+```
+
+```{r,table-simple3,results='asis'}
+tbl4= vk_posts_light %>% filter() %>% select(post_id = id, owner_id:reposts.count, -text)
+pandoc.table(tbl4, style = "rmarkdown")
+
+```
+

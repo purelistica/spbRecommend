@@ -1,0 +1,62 @@
+
+```{r}
+library(tidyverse)
+library(vkR)
+library(devtools)
+source_url("https://gist.githubusercontent.com/paulokopny/63daf8ca42f9d842b122/raw/bf7c8f9f6944b44e7c791cb66f4919bd762f4dc9/vk.R")
+source_url("https://raw.githubusercontent.com/Dementiy/vkR/master/examples/execute.R")
+#http://wardoctor.nosoc.io/public/paulokopny/vkauth/karepin.html
+
+vk <- get.vk.connector(code = "COde", app = "karepin", debug = T) 
+setAccessToken(access_token='ТОКЕН ИЗ ПРЕДЫДУЩЕЙ ФУНКЦИИ')
+
+vkOAuth(5585217, 'groups', 'ЗДЕСЬ СВОЮ ПОЧТУ ОТ ВК', 'ПАРОЛЬ')
+
+#Функция для выкачки пользователей 
+get_users <- function(user_ids='', fields='', name_case='') {
+    code <- 'var users = [];'
+    num_requests <- ifelse(length(user_ids) %% 500 == 0, (length(user_ids) %/% 500), (length(user_ids) %/% 500) + 1)
+    from <- 1
+    to <- ifelse(num_requests >= 2, 500, length(user_ids))
+    for (i in 1:num_requests) {
+      code <- paste0(code, 'users = users + API.users.get({
+                     "user_ids":"', paste0(user_ids[from:to], collapse = ','), '", 
+                     "fields":"', fields, '", 
+                     "name_case":"', name_case, '", "v":"5.50"});')
+      from <- to + 1
+      to <- to + ifelse(length(user_ids) - (to + 500) >= 0, 500, length(user_ids) - to)
+    }
+    code <- paste0(code, 'return users;')
+    if (nchar(code) > 65535) stop("The POST request is limited by 65535 bytes")
+    execute(code)
+  }
+  
+#проверить, работает ли вк апи 
+get_users(user_ids = "1")
+
+
+#выгрузка пользователей
+users_list <- read_csv("~/spbRecommend/users_list.csv")
+
+d = users_list$users
+d = split(d, ceiling(seq_along(d)/2000))
+#d[[104]]
+
+x = data.frame() 
+u = 2
+for(u in 1:length(d)){ 
+  a = get_users(user_ids = as.vector(d[[u]]), fields = 'sex, bdate, home_town, lists, has_mobile, contacts, site, education, followers_count, common_count, occupation, screen_name') 
+  a$occupationType = a$occupation$type 
+  a$occupationId = a$occupation$id 
+  a$occupationName = a$occupation$name 
+  if (is.null(a$occupation)==F){
+  a = a %>% select( -occupation) } 
+  
+  x = plyr::rbind.fill(x, a) 
+  Sys.sleep(1) 
+} 
+x = x %>% select()
+write.csv(x, 'users_get.csv')
+
+```
+

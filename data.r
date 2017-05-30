@@ -2,9 +2,9 @@
 ### workfile
 
 library(readr)
-likes <- read_csv("/students/aabakhitova/spbRecommend/likes_vk2000.csv")
+likes <- read_csv("/students/aabakhitova/spb_files/likes_vk10000.csv")
 likes <- likes[,2:3]
-posts <- read_csv("/students/aabakhitova/spbRecommend/vk_posts_light.csv")
+posts <- read_csv("/students/aabakhitova/spb_files/vk_posts_light.csv")
 posts <- posts[,1:19]
 events <- read_csv('events.csv')
 places <- read_csv('places.csv')
@@ -44,8 +44,26 @@ all <- rbind(events,places)
 
 s <- strsplit(all$categories, split = "###")
 cat <- data.frame(kudago_id = rep(all$kudago_id, sapply(s, length)), category = unlist(s))
+
+# match of kudago & vk
+test <- inner_join(all, posts, by=c("site_url"="link"))
+write.csv(test, 'matched_kudago.csv')
+
+# users match
+match <- inner_join(test, likes, by="id")
+match <- dplyr::select(match, kudago_id, users)
+
+###
+
 cat <- inner_join(cat, match, by = "kudago_id")
 cat <- group_by(cat, category, users) %>% summarize(cnt=n())
+
+## users list
+users_list <- dplyr::group_by(cat, users) %>% summarise(tot_cnt=sum(cnt)) %>%
+  dplyr::filter(tot_cnt>2) %>% dplyr::select(1)
+write.csv(users_list, "users_list.csv", row.names = F)
+
+cat <- inner_join(cat, users_list, by = "users")
 
 library(reshape2)
 
@@ -53,26 +71,25 @@ res <- dcast(cat, users~category, value.var = 'cnt')
 
 ###
 
-test <- inner_join(all, posts, by=c("site_url"="link"))
-test_sum2 <- dplyr::group_by(test2, site_url) %>% summarise(cnt=n()) %>% arrange(desc(cnt))
+res[is.na(res)] = 0
+dist_res = dist(res)
+
+res.hc <- hclust(dist_res, method = "ward.D2" )
+# plot(res.hc, cex = 0.6)
+# rect.hclust(res.hc, k = 4, border = 2:5)
+
+# clust_2 <- cutree(res.hc, 2)
+clust_5 <- cutree(res.hc, 5)
+
+clust_fin <- as.data.frame(cbind(res$users, clust_5))
+clust_fin$clust_5 <- as.factor(clust_fin$clust_5)
 
 ###
 
-match <- inner_join(test, likes, by="id")
-match <- dplyr::select(match, kudago_id, users)
 
-###
 
-res1 = res
-res1[is.na(res1)] = 0
-View(res1)
-dist_res = dist(res1)
 
-## users list
 
-users_list <- dplyr::group_by(cat, users) %>% summarise(tot_cnt=sum(cnt)) %>%
-  dplyr::filter(tot_cnt>2) %>% dplyr::select(1)
-write.csv(users_list, "users_list.csv", row.names = F)
 
 
 
