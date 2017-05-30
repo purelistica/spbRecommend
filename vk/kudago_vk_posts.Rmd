@@ -26,12 +26,19 @@ vk_posts_list = get_all_posts(owner_id = "-36338110")
 vk_posts = sapply(1:length(vk_posts_list), function(z){as.data.frame(t(unlist(vk_posts_list[[z]])))})
 vk_posts = do.call(plyr::rbind.fill, vk_posts) 
 vk_posts = as.data.frame(vk_posts, stringsAsFactors = F)
-#write_csv(profiles, "/students/aabakhitova/spbRecommend/vk_posts.csv")
 
-vk_posts = vk_posts %>% select(attachments.link, geo) %>%  select(id:reposts.count,  starts_with("attachments.link"),starts_with("geo")) 
+#vk_posts0 =  vk_posts
+#vk_posts0[] <- lapply(vk_posts0, as.character)
+#vk_posts0 = vk_posts %>% unite("attachments", attachments.link.url1:attachments.link.url10, sep = "")
 
-vk_posts= vk_posts%>% select(-(attachments.link.title1:attachments.link.preview_url))
-#write_csv(vk_posts, "/students/aabakhitova/spbRecommend/vk_posts_light.csv")
+
+#write_csv(vk_posts, "/students/aabakhitova/spb_files/vk_posts.csv")
+
+vk_posts0 = vk_posts  %>%  dplyr::select(id:reposts.count,  starts_with("attachments.link"),starts_with("geo"))
+#%>%  select(id:reposts.count,  starts_with("attachments.link"),starts_with("geo")) 
+
+vk_posts1 = vk_posts %>% select(-(attachments.link.title1:attachments.link.preview_url))
+#write_csv(vk_posts0, "/students/aabakhitova/spbRecommend/vk_posts_light2.csv")
 
 vk_posts$likes.count = as.character(vk_posts$likes.count) %>% as.numeric()
 vk_posts1000 = vk_posts %>% filter(likes.count>=1000) 
@@ -39,17 +46,24 @@ vk_posts0 = vk_posts %>% filter(likes.count==0)
 
 vk_posts = vk_posts %>% filter(likes.count<1000 & likes.count != 0) 
 
+#vk_posts[is.na(vk_posts)] <- ""
+vk_posts0 = vk_posts %>% unite("link", attachments.link.url1:attachments.link.url10, sep = "")
 library(tidyr)
-likes_vk = data.frame()
-for (i in vk_posts$id[5347:10000]) {
-  temp = likesGetList(type = "post", owner_id = "-36338110", item_id = i,filter = "likes", friends_only = "0", extended = "", offset = "0", count = "1000", skip_own = 0)
+#likes_vk2 = data.frame()
+for (i in vk_posts$id[128600:20000]) {
+  temp = likesGetList(type = "post", owner_id = "-36338110", item_id = i,filter = "likes", friends_only = "0", extended = "", offset = "0", count = "1000", skip_own = 0) 
+  if (length(temp$items) != 0) {
   temp = data.frame(id = i, users = temp$items) %>% group_by(id) %>% nest()
-  Sys.sleep(0.5)
-  likes_vk = plyr::rbind.fill(likes_vk, temp)
+  likes_vk2 = plyr::rbind.fill(likes_vk2, temp) 
+  }
+  Sys.sleep(0.2)
+  
 }
 
-likes_vk2 = likes_vk %>% unnest()
-write.csv(likes_vk2, "~/spbRecommend/likes_vk10000.csv")
+#дожать >1000лайков посты
+
+likes_vk3 = likes_vk2 %>% unnest()
+write_csv(likes_vk3, "/students/aabakhitova/spb_files/likes_vk10000.csv")
 
 ```
 

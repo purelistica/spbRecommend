@@ -1,8 +1,8 @@
 ```{r,table-simple,results='asis'}
 library(readr)
-vk_posts_light <- read_csv("~/spbRecommend/vk_posts_light.csv")
+vk_posts_light <- read_csv("/students/aabakhitova/spb_files/vk_posts_light.csv")
 
-library(dplyr)
+library(tidyverse)
 library(pander)
 panderOptions('table.split.table', Inf)
 tbl1 = vk_posts_light[1:4,] %>% select(post_id = id, owner_id:reposts.count, -text)
