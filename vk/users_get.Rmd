@@ -1,15 +1,13 @@
 
 ```{r}
-library(dplyr)
-library(stringr)
-library(readr)
+library(tidyverse)
 library(vkR)
 library(devtools)
 source_url("https://gist.githubusercontent.com/paulokopny/63daf8ca42f9d842b122/raw/bf7c8f9f6944b44e7c791cb66f4919bd762f4dc9/vk.R")
 source_url("https://raw.githubusercontent.com/Dementiy/vkR/master/examples/execute.R")
-#получаем код по ссылке wardoctor и подставляем в code
+#http://wardoctor.nosoc.io/public/paulokopny/vkauth/karepin.html
 
-vk <- get.vk.connector(code = "КОД ПОЛУЧИТЬ ПО ССЫЛКЕ ВЫШЕ", app = "karepin", debug = T) 
+vk <- get.vk.connector(code = "COde", app = "karepin", debug = T) 
 setAccessToken(access_token='ТОКЕН ИЗ ПРЕДЫДУЩЕЙ ФУНКЦИИ')
 
 vkOAuth(5585217, 'groups', 'ЗДЕСЬ СВОЮ ПОЧТУ ОТ ВК', 'ПАРОЛЬ')
