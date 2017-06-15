@@ -94,9 +94,11 @@ users_match <- inner_join(kudago_match, likes, by="id")
 users_match <- dplyr::select(users_match, kudago_id, users)
 
 users_list <- group_by(users_match, users) %>% summarise(cnt=n())
-users_list <- dplyr::filter(users_list, cnt > 1)
+users_list <- dplyr::filter(users_list, cnt > 1) %>%
+  dplyr::select(1)
 
-write.csv(users_list, "users_list.csv", row.names = F)
+write.csv(users_list, "~/spbRecommend/final_data/users_list.csv", 
+          row.names = F)
 
 
 
