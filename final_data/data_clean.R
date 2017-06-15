@@ -7,7 +7,7 @@ library(lubridate)
 
 # data loading
 
-# likes <- read_csv("/students/aabakhitova/spb_files/likes_vk10000.csv")
+likes <- read_csv("/students/aabakhitova/spb_files/likes_vk10000.csv")
 posts <- read_csv("/students/aabakhitova/spb_files/vk_posts_light2.csv")
 
 events <- read_csv('~/spbRecommend/kudago_data/events2.csv')
@@ -85,5 +85,18 @@ kudago_all <- rbind(events,places)
 # match of kudago & vk
 
 kudago_match <- inner_join(kudago_all, posts, by=c("site_url"="link"))
-write.csv(kudago_match, "~/spbRecommend/final_data/kudago_match.csv")
+write.csv(kudago_match, "~/spbRecommend/final_data/kudago_match.csv",
+          row.names = F)
+
+# users list
+
+users_match <- inner_join(kudago_match, likes, by="id")
+users_match <- dplyr::select(users_match, kudago_id, users)
+
+users_list <- group_by(users_match, users) %>% summarise(cnt=n())
+users_list <- dplyr::filter(users_list, cnt > 1)
+
+write.csv(users_list, "users_list.csv", row.names = F)
+
+
 
