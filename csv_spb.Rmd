@@ -7,26 +7,58 @@ output: html_document
 events=read.csv("~/spbRecommend/events.csv")
 places=read.csv("~/spbRecommend/places.csv")
 
-likes=read.csv("/students/aabakhitova/spbRecommend/likes_vk2000.csv")
-posts=read.csv("/students/aabakhitova/spbRecommend/vk_posts_light.csv")
+likes=read.csv("/students/aabakhitova/spb_files/likes_vk2000.csv")
+posts=read.csv("/students/aabakhitova/spb_files/vk_posts_light.csv")
+```
+```{r wordcloud places}
+library(wordcloud)
+
+places$tags = gsub("'", "", places$tags)
+places$tags = gsub("\\[|\\]", " ", places$tags)
+places$tags = as.character(places$tags)
+places$tags <- removeWords(places$tags, stopwords("english"))
+wCorpus12 <- Corpus(VectorSource(places$tags))
+wCorpus12 <- tm_map(wCorpus12, content_transformer(tolower))
+wCorpus12 <- tm_map(wCorpus12, removePunctuation)
+wCorpus12 <- tm_map(wCorpus12, stemDocument)
+
+tdm.data <- TermDocumentMatrix(wCorpus12)
+words_matrix12 <- as.matrix(tdm.data)
+colnames(words_matrix12) <- places$tags
+
+words_freq12 <- sort(rowSums(words_matrix12), decreasing=TRUE)
+words_freq12 <- data.frame(freq = words_freq12, word = names(words_freq12))
+rownames(words_freq12) <- NULL 
+
+wordcloud(words = words_freq12$word, freq = words_freq12$freq, scale=c(3,.1), min.freq = 50,
+max.words=Inf, random.order=FALSE, rot.per=0.1,
+ordered.colors=FALSE, colors=brewer.pal(8, "Dark2"))
+
+```
+```{r wordcloud events}
+
+events$tags = gsub("'", "", events$tags)
+events$tags = gsub("\\[|\\]", " ", events$tags)
+events$tags = as.character(events$tags)
+events$tags <- removeWords(events$tags, stopwords("english"))
+wCorpus12 <- Corpus(VectorSource(events$tags))
+wCorpus12 <- tm_map(wCorpus12, content_transformer(tolower))
+wCorpus12 <- tm_map(wCorpus12, removePunctuation)
+wCorpus12 <- tm_map(wCorpus12, stemDocument)
+
+tdm.data <- TermDocumentMatrix(wCorpus12)
+words_matrix12 <- as.matrix(tdm.data)
+colnames(words_matrix12) <- events$tags
+
+words_freq12 <- sort(rowSums(words_matrix12), decreasing=TRUE)
+words_freq12 <- data.frame(freq = words_freq12, word = names(words_freq12))
+rownames(words_freq12) <- NULL 
+
+wordcloud(words = words_freq12$word, freq = words_freq12$freq, scale=c(3,.1), min.freq = 50,
+max.words=Inf, random.order=FALSE, rot.per=0.1,
+ordered.colors=FALSE, colors=brewer.pal(8, "Dark2"))
 ```
 
-```{r map}
-library(ggplot2)
-library(ggmap)
-library(tidyr)
-
-# places<-separate(places, col=subway, into=c("subway1", "subway2","subway3"), sep=",")
-places=inner_join(places,categores_places, by="topic")
-
-map = get_map(location = c("санкт-петербург"), zoom = 11, color = "bw", maptype = "roadmap")
-
-ggmap(map) +
-  geom_point(data = places, aes(x = lon, y = lat, color=category), alpha = 0.5, size = 0.7)
-
-# позже придумаю что делать с категориями для цвета
-
-```
 ```{r lda on posts}
 library(mallet)
 library(dplyr)
@@ -139,7 +171,22 @@ for (k in 1:nrow(topic.words)) {
 write.csv(df,"categores_places.csv")
 ```
 
-```{r}
+```{r map}
+library(ggplot2)
+library(ggmap)
+library(tidyr)
+
+# places<-separate(places, col=subway, into=c("subway1", "subway2","subway3"), sep=",")
+places=inner_join(places,categores_places, by="topic")
+
+map = get_map(location = c("санкт-петербург"), zoom = 11, color = "bw", maptype = "roadmap")
+
+ggmap(map) +
+  geom_point(data = places, aes(x = lon, y = lat, color=category), alpha = 0.5, size = 0.7)
+
+```
+
+```{r some other stuff}
 doctop=data.frame(doc.topics)
 places$topic=colnames(doctop)[max.col(doctop,ties.method="first")]
 write.csv(places,"places.csv")
@@ -169,8 +216,18 @@ words=head(words_freq12,10)%>%dplyr::arrange(desc(freq))
 ggplot()+geom_bar(data=words,aes(x=reorder(word,desc(freq)),y=freq), fill="darkolivegreen2",stat="identity")+theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.title.x = element_text(size=18), axis.title.y = element_text(size=16),legend.text=element_text(size=12), axis.text.y=element_text(size=11), axis.text.x=element_text(size=11)) +xlab("Категория")+ylab("Частотность")
 ```
 
-```{r}
+```{r cluster visualization}
 only_year$age=2017-only_year$Year
 median(only_year$age)
 mean(only_year$age)
+
+
+cluster_category_freq=cluster_category_freq%>%group_by(clust_5)%>%dplyr::arrange(desc(total_mentions))%>%top_n(10)
+cluster_category_freq$clust_5=as.factor(cluster_category_freq$clust_5)
+cluster_category_freq=ungroup(cluster_category_freq)
+cluster_category_freq = cluster_category_freq %>% arrange(total_mentions) %>% 
+  mutate(clust_5=ordered(clust_5, levels = unique(cluster_category_freq$clust_5)))
+
+ggplot()+geom_bar(data=cluster_category_freq,aes(x=reorder(category,desc(total_mentions)),y=total_mentions,fill=clust_5),stat="identity")+ facet_grid(clust_5 ~ .)+theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.title.x = element_text(size=18), axis.title.y = element_text(size=16),legend.text=element_text(size=12), axis.text.y=element_text(size=11), axis.text.x=element_text(size=11)) +xlab("Категория")+ylab("Частотность")
+
 ```

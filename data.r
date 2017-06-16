@@ -1,4 +1,5 @@
 
+### OLD FILE!!!
 ### workfile
 
 library(readr)
@@ -79,6 +80,10 @@ res[is.na(res)] = 0
 dist_res = dist(res)
 
 res.hc <- hclust(dist_res, method = "ward.D2" )
+
+set.seed(20)
+res.km <- kmeans(dist_res, 5, nstart = 20)
+
 # plot(res.hc, cex = 0.6)
 # rect.hclust(res.hc, k = 4, border = 2:5)
 
@@ -88,11 +93,18 @@ clust_5 <- cutree(res.hc, 5)
 clust_fin <- as.data.frame(cbind(res$users, clust_5))
 clust_fin$clust_5 <- as.factor(clust_fin$clust_5)
 
+#~
+
+clust_5_km <- res.km$cluster
+
+clust_fin_km <- as.data.frame(cbind(res$users, clust_5_km))
+clust_fin_km$clust_5 <- as.factor(clust_fin_km$clust_5)
+
 ###
 
 # cluster descriptive
 
-descr_clust1 <- inner_join(cat_flt, clust_fin, by = c("users"="V1"))
+descr_clust1 <- inner_join(cat_flt, clust_fin_km, by = c("users"="V1"))
 descr_clust2 <- dplyr::group_by(descr_clust1, clust_5, category) %>%
   summarise(total_mentions = sum(cnt))
 
@@ -101,4 +113,20 @@ dplyr::filter(descr_clust2, clust_5 == 1) %>%
   top_n(10)
 write.csv(descr_clust2, 'cluster_category_freq.csv', row.names = F)
 
+###
+
+users_char <- read.csv("users_year.csv")
+users_char <- dplyr::select(users_char, id, sex, Year)
+users_char$age <- 2017 - users_char$Year
+users_char <- dplyr::select(users_char, -Year)
+
+users_clust <- inner_join(clust_fin_km, users_char, by = c("V1"="id"))
+
+dplyr::group_by(users_clust, clust_5) %>% summarise(mean(sex))
+dplyr::group_by(users_clust, clust_5) %>% summarise(mean(age))
+
+users_clust_t <- users_clust
+users_clust_t$sex <- as.factor(users_clust_t$sex)
+users_clust_t$clust_5 <- as.factor(users_clust_t$clust_5)
+chisq.test(users_clust_t$clust_5,users_clust_t$sex)
 
