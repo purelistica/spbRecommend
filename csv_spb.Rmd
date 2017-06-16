@@ -4,14 +4,16 @@ output: html_document
 ---
 
 ```{r all datasets}
-events=read.csv("~/spbRecommend/events.csv")
-places=read.csv("~/spbRecommend/places.csv")
+events=read.csv("~//spbRecommend/kudago_data/events2.csv")
+places=read.csv("~//spbRecommend/kudago_data/places2.csv")
 
 likes=read.csv("/students/aabakhitova/spb_files/likes_vk2000.csv")
 posts=read.csv("/students/aabakhitova/spb_files/vk_posts_light.csv")
 ```
 ```{r wordcloud places}
+library(RColorBrewer)
 library(wordcloud)
+library(tm)
 
 places$tags = gsub("'", "", places$tags)
 places$tags = gsub("\\[|\\]", " ", places$tags)
@@ -229,5 +231,4 @@ cluster_category_freq = cluster_category_freq %>% arrange(total_mentions) %>%
   mutate(clust_5=ordered(clust_5, levels = unique(cluster_category_freq$clust_5)))
 
 ggplot()+geom_bar(data=cluster_category_freq,aes(x=reorder(category,desc(total_mentions)),y=total_mentions,fill=clust_5),stat="identity")+ facet_grid(clust_5 ~ .)+theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.title.x = element_text(size=18), axis.title.y = element_text(size=16),legend.text=element_text(size=12), axis.text.y=element_text(size=11), axis.text.x=element_text(size=11)) +xlab("Категория")+ylab("Частотность")
-
 ```
