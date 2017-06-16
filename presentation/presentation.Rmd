@@ -1,0 +1,158 @@
+---
+title: "Рекомендательная система"
+author: Бахитова Алина, Дорноступ Ольга, Козлов Станислав, Константинова Ксения, Смирнова
+  Анна
+date: "Июнь, 2017"
+output:
+  ioslides_presentation:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    logo: logo.png
+  beamer_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Описание идеи
+
+Рекомендовать события в Санкт-Петербурге с портала KudaGo
+
+1. Пользователь авторизуется ВКонтакте
+2. Machine Learning
+2. Выводится рекомендация событий с Питере
+3. Profit
+
+<div class="centered">
+![](mem.jpeg)
+</div>
+  
+## Распределение ролей
+
+- Алина: сбор данных из со страници группы KudaGo ВКонтакте; данных о пользователях, лайкавших посты 
+- Аня: разработка рекомендательной системы
+- Ксюша: анализ текстов, выделение топиков; работа с картой
+- Оля: предобработка данных, описательная статистика, презентация
+- Стас: разработка интерфейса, Shiny
+
+<div class="centered">
+![](team2.jpg)
+
+</div>
+
+## Описание данных
+
+```{r, include=F}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+data = read.csv("~//spbRecommend/vk/users_get.csv", sep=",")
+d=select(data, bdate)
+user_year=data %>% separate(bdate, c("Date", "Month", "Year"))
+user_year=cbind(user_year, d)
+user_year=filter(user_year, Year > 0)
+user_year= mutate(user_year, age= as.numeric(2017-as.numeric(Year)))
+
+not_empty = filter(user_year, age < 50)
+not_empty = filter(not_empty, occupationType != "NA")
+not_empty=mutate(not_empty, Gender=ifelse(sex==1, "female", "male"))
+not_empty$Gender = as.factor(not_empty$Gender)
+f= dplyr::group_by(not_empty, sex, occupationType) %>%
+  summarise(count=n())
+f=mutate(f, Gender=ifelse(sex==1, "female", "male"))
+```
+
+
+<div class="columns-2">
+
+```{r f, echo=F, fig.width = 4, fig.height = 5}
+ggplot(data=f, aes(x=Gender, y=count, fill = occupationType)) +
+    geom_bar(stat="identity") + ggtitle("Чем занимаются")
+```
+  
+Личная информация о пользователях, лайкавших посты в группе KudaGo ВКонтакте: 
+
+  - имя
+  - возраст
+  - пол 
+  - город
+  - сайт
+  - телефон
+  - и др.
+
+</div>
+
+## Описание данных
+
+<div class="columns-2">
+
+```{r p, echo=F, warning=F, fig.width = 4, fig.height = 5}
+p <- ggplot(not_empty, aes(occupationType, age))
+p + geom_boxplot()+ 
+  ggtitle("Чем занимаются")
+```
+  
+Личная информация о пользователях, лайкавших посты в группе KudaGo ВКонтакте: 
+
+  - имя
+  - возраст
+  - пол 
+  - город
+  - сайт
+  - телефон
+  - и др.
+
+</div>
+
+## Описание данных
+
+<div class="columns-2">
+
+![](events_init.jpg)
+
+События/мероприятия с сайта KudaGo:
+ 
+  - название
+  - описание
+  - даты проведения
+  - возрастные ограничения
+  - теги и категории, присвоенные сайтом
+  - цена 
+  - и др.
+</div>
+
+
+## Описание данных
+
+<div class="columns-2">
+  ![](map_places.png)
+
+Места с сайта KudaGo:
+
+  - название
+  - описание
+  - часы работы
+  - широта и долгота
+  - теги и категории, присвоенные сайтом
+  - ближайшая ст. метро 
+  - сайт 
+  - и др.
+</div>
+
+
+## Интерфейс
+
+Тут можно ссылку на приложение
+
+## Same text in center
+
+<div class="centered">
+Here is text
+</div>
+
+<div class="red2">
+Red text
+</div>
+
