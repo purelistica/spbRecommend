@@ -200,16 +200,19 @@ write.csv(clust8, "~/spbRecommend/data_for_tests/clust8.csv", row.names = F)
 library("class")
 library(caret)
 
-knn_data <- inner_join(clust8, users, by=c("users"="id")) %>% dplyr::select(-users)
+knn_data <- inner_join(clust8, users, by=c("users"="id")) %>% 
+  inner_join(sub_mat, by=c("users"="id")) %>%
+  dplyr::select(-users)
 knn_data[is.na(knn_data)] = 0
+
+write.csv(knn_data, "~/spbRecommend/data_for_tests/knn_data.csv")
+
 set.seed(17)
 test.ind = sample(seq_len(nrow(knn_data)), size = nrow(knn_data)*0.2)
 test = knn_data[test.ind,]
 main = knn_data[-test.ind,]
 
-knn_result <- knn(train=dplyr::select(main, -clust), 
-                  test=dplyr::select(test, -clust),
-                  cl=main$clust,  k=20)
+knn_result <- class::knn(train=dplyr::select(main, -clust), test=dplyr::select(test, -clust), cl=main$clust,  k=3)
 
 confusionMatrix(knn_result,test$clust)
 
