@@ -1,9 +1,9 @@
 function(input, output, session) {
 
 
-    model <- eventReactive( c(input$subway), {
+    model <- eventReactive( c(input$sub_id), {
       # draw a random number and print it
-      input$subway
+      input$sub_id
       data = read.csv("/students/sekozlov/HOMEWORK/project2/events_s.csv")
       p = sample(1:8000, 1)
       p1 = as.character(data$title[p])
