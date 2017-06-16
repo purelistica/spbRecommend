@@ -8,11 +8,19 @@ fluidPage(style="padding-top: 80px;",
             #draggable = TRUE,
             style="width:30%; float:right; font-size: 20px;",
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
-                "Please be patient and tell us a little bit about `yourself`:"
+                "Пожалуйста, введите свой `id` на vk.com:"
               ))),
-              sliderInput("age", "Age", min=14, max=65, value=20),
-              selectInput("sex", "Sex", c("Male", "Female")),
-              textInput("subway", "Subway station", value = "Маяковская")
+              textInput("subway", "Profile ID", value = "100144169"),
+            HTML(markdownToHTML(fragment.only=TRUE, text=c(
+              "Рекомендации для:"
+            ))),
+            strong(HTML(markdownToHTML(fragment.only=TRUE, text=c(
+              toString(textOutput("username"))
+            )))),
+            br(),
+            HTML(markdownToHTML(fragment.only=TRUE, text=c(
+             "Для перехода к `событию` нажмите на изображение"
+            )))
               ),
             
           absolutePanel(
@@ -32,7 +40,7 @@ fluidPage(style="padding-top: 80px;",
             )),div(
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 toString(textOutput("desc"))
-              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше") 
+              ))),style="font-size: 14px;" 
             )
           ),
           wellPanel(
@@ -42,7 +50,7 @@ fluidPage(style="padding-top: 80px;",
               )),div(
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 toString(textOutput("desc2"))
-              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше")
+              ))),style="font-size: 14px;"
             )
           ),
           wellPanel(
@@ -52,7 +60,7 @@ fluidPage(style="padding-top: 80px;",
             )),div(
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 toString(textOutput("desc3"))
-              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше")
+              ))),style="font-size: 14px;" 
             )
           ),
           wellPanel(
@@ -62,7 +70,7 @@ fluidPage(style="padding-top: 80px;",
             )),div(
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 toString(textOutput("desc4"))
-              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше")
+              ))),style="font-size: 14px;"
             )
           ),
           wellPanel(
@@ -72,7 +80,7 @@ fluidPage(style="padding-top: 80px;",
             )),div(
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 toString(textOutput("desc5"))
-              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше")
+              ))),style="font-size: 14px;" 
             )
           ),
           wellPanel(
@@ -82,7 +90,7 @@ fluidPage(style="padding-top: 80px;",
             )),div(
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 toString(textOutput("desc6"))
-              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше")
+              ))),style="font-size: 14px;"
             )
           )
           
