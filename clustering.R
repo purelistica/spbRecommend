@@ -21,8 +21,6 @@ users <- dplyr::select(users, id, sex, age)
 s <- strsplit(kudago_match$categories, split = "###")
 cat <- data.frame(kudago_id = rep(kudago_match$kudago_id, 
                                   sapply(s, length)), category = unlist(s))
-cat <- inner_join(cat, users_match, by = "kudago_id")
-cat <- group_by(cat, category, users) %>% summarize(cnt=n())
 
 cat$category <- as.character(cat$category)
 cat$category <- ifelse(cat$category == "shops", "shopping", cat$category)
@@ -30,15 +28,42 @@ cat$category <- ifelse(cat$category == "theater", "theatre", cat$category)
 cat$category <- ifelse(cat$category == "questroom", "quest", cat$category)
 cat$category <- as.factor(cat$category)
 
-cat <- dplyr::filter(cat, !(category %in% c('exhibition','tour','sport')))
-cat <- dplyr::group_by(cat, category, users) %>% summarise(cnt_l=sum(cnt))
+# post frequency by category
+cat_freq <- group_by(cat, category) %>% summarise(freq = n())
 
-# frequency by category
+# стоит убрать категории, встречающиеся в четверти постов и более, как нерепрезентативные
+# а также редкие категории
+cat_todrop <- dplyr::filter(cat_freq, 
+                            freq >= length(unique(kudago_match$kudago_id))/4 |
+                            freq < 10)
+cat <- anti_join(cat, cat_todrop, by="category")
 
-cat_freq <- group_by(cat, category) %>% summarise(freq = sum(cnt_l))
-# to filter or not to filter ... ? 
+# tags
 
-users_cat <- ungroup(cat) %>% 
+t <- strsplit(kudago_match$tags, split = "###")
+tags <- data.frame(kudago_id = rep(kudago_match$kudago_id, 
+                                  sapply(t, length)), tag = unlist(t))
+
+tags_freq <- group_by(tags, tag) %>% summarise(freq = n())
+
+tags_todrop <- dplyr::filter(tags_freq, 
+                             freq >= length(unique(kudago_match$kudago_id))/4 |
+                             freq < 10)
+tags <- anti_join(tags, tags_todrop, by="tag")
+
+# category/tag -- user
+
+cat_usr <- inner_join(cat, users_match, by = "kudago_id")
+cat_usr <- group_by(cat_usr, category, users) %>% summarize(cnt_l=n())
+
+tags_usr <- inner_join(tags, users_match, by = "kudago_id")
+tags_usr <- group_by(tags_usr, tag, users) %>% summarize(cnt_l=n())
+
+
+# -------------------------------------------------------------------------------------
+
+
+users_cat <- ungroup(cat_usr) %>% 
   group_by(users) %>% summarise(cnt_c=n(), sum_l=sum(cnt_l)) %>%
   inner_join(users_list, by = "users")
 
@@ -107,11 +132,45 @@ summarise(clust7_sum, mean(sex),mean(age, na.rm = T))
 
 # так себе отличия
 
+clust7_cnt <- group_by(clust7, clust) %>% summarise(n=n())
+
 clust7_cat <- inner_join(clust7, cat_flt, by="users") %>%
-  group_by(clust, category) %>% summarise(avg=mean(norm))
+  group_by(clust, category) %>% summarise(avg=mean(norm), likes=sum(cnt_l)) %>%
+  inner_join(clust7_cnt, by="clust")
+
+clust7_cat <- mutate(clust7_cat, prob = likes / n)
 
 dplyr::filter(clust7_cat, clust=='1') %>% arrange(desc(avg)) %>% top_n(10)
 dplyr::filter(clust7_cat, clust=='2') %>% arrange(desc(avg)) %>% top_n(10)
 dplyr::filter(clust7_cat, clust=='3') %>% arrange(desc(avg)) %>% top_n(10)
 dplyr::filter(clust7_cat, clust=='6') %>% arrange(desc(avg)) %>% top_n(10)
+
+
+### категории по кластерам
+
+
+
+
+##### KNN?
+##### (or how to assign a new member to the cluster)
+
+library("class")
+library(caret)
+
+knn_data <- inner_join(clust7, users, by=c("users"="id"))
+knn_data[is.na(knn_data)] = 0
+set.seed(17)
+test.ind = sample(seq_len(nrow(knn_data)), size = nrow(knn_data)*0.2)
+test = knn_data[test.ind,]
+main = knn_data[-test.ind,]
+
+knn_result <- knn(train= select(main, -clust), 
+                  test=select(test, -clust),
+                  cl=main$clust,  k=5)
+
+confusionMatrix(knn_result,test$clust)
+
+
+
+
 
