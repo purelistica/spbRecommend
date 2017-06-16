@@ -25,9 +25,13 @@ ggplot() +
   geom_bar(data = f, aes(x = sex, y = count, fill = occupationType, stat="identity"))
 
 ggplot(data=f, aes(x=Gender, y=count, fill = occupationType)) +
-    geom_bar(stat="identity") 
+    geom_bar(stat="identity") + ggtitle("Occupation type")
 
 p <- ggplot(not_empty, aes(Gender, age))
 p + geom_boxplot()+ 
   ggtitle("Age")
+
+str(data$first_name)
+
+
 ```
