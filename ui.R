@@ -26,30 +26,27 @@ fluidPage(style="padding-top: 80px;",
             )
           ),
           wellPanel(
-            img(src='http://az616578.vo.msecnd.net/files/2016/03/23/635943566212276867210249251_concert-crowd.jpg', align = "right"
-                ,width="220", height="155"),
+            uiOutput("img1"),
+            style="width:70%;height:180px; font-size: 20px;",
+            HTML(markdownToHTML(fragment.only=TRUE, text=c(toString(textOutput("plot2")))
+            )),div(
+              HTML(markdownToHTML(fragment.only=TRUE, text=c(
+                toString(textOutput("desc"))
+              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше") 
+            )
+          ),
+          wellPanel(
+            uiOutput("img3"),
             style="width:70%;height:180px; font-size: 20px;",
             HTML(markdownToHTML(fragment.only=TRUE, text=c(toString(textOutput("plot22")))
-            )),div(
+              )),div(
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 toString(textOutput("desc2"))
               ))),style="font-size: 14px;",actionButton("plot2","Узнать больше")
             )
           ),
           wellPanel(
-            img(src='http://az616578.vo.msecnd.net/files/2016/03/23/635943566212276867210249251_concert-crowd.jpg', align = "right"
-                ,width="220", height="155"),
-            style="width:70%;height:180px; font-size: 20px;",
-            HTML(markdownToHTML(fragment.only=TRUE, text=c(toString(textOutput("plot2")))
-              )),div(
-              HTML(markdownToHTML(fragment.only=TRUE, text=c(
-                toString(textOutput("desc"))
-              ))),style="font-size: 14px;",actionButton("plot2","Узнать больше")
-            )
-          ),
-          wellPanel(
-            img(src='http://az616578.vo.msecnd.net/files/2016/03/23/635943566212276867210249251_concert-crowd.jpg', align = "right"
-                ,width="220", height="155"),
+            uiOutput("img5"),
             style="width:70%;height:180px; font-size: 20px;",
             HTML(markdownToHTML(fragment.only=TRUE, text=c(toString(textOutput("plot23")))
             )),div(
@@ -59,8 +56,7 @@ fluidPage(style="padding-top: 80px;",
             )
           ),
           wellPanel(
-            img(src='http://az616578.vo.msecnd.net/files/2016/03/23/635943566212276867210249251_concert-crowd.jpg', align = "right"
-                ,width="220", height="155"),
+            uiOutput("img7"),
             style="width:70%;height:180px; font-size: 20px;",
             HTML(markdownToHTML(fragment.only=TRUE, text=c(toString(textOutput("plot4")))
             )),div(
@@ -70,8 +66,7 @@ fluidPage(style="padding-top: 80px;",
             )
           ),
           wellPanel(
-            img(src='http://az616578.vo.msecnd.net/files/2016/03/23/635943566212276867210249251_concert-crowd.jpg', align = "right"
-                ,width="220", height="155"),
+            uiOutput("img9"),
             style="width:70%;height:180px; font-size: 20px;",
             HTML(markdownToHTML(fragment.only=TRUE, text=c(toString(textOutput("plot5")))
             )),div(
@@ -81,8 +76,7 @@ fluidPage(style="padding-top: 80px;",
             )
           ),
           wellPanel(
-            img(src='http://az616578.vo.msecnd.net/files/2016/03/23/635943566212276867210249251_concert-crowd.jpg', align = "right"
-                ,width="220", height="155"),
+            uiOutput("img11"),
             style="width:70%;height:180px; font-size: 20px;",
             HTML(markdownToHTML(fragment.only=TRUE, text=c(toString(textOutput("plot6")))
             )),div(
