@@ -10,7 +10,9 @@ fluidPage(style="padding-top: 80px;",
               HTML(markdownToHTML(fragment.only=TRUE, text=c(
                 "Пожалуйста, введите свой `id` на vk.com:"
               ))),
+            div(
               textInput("subway", "Profile ID", value = "100144169"),
+              actionButton("sub_id","Submit")),
             HTML(markdownToHTML(fragment.only=TRUE, text=c(
               "Рекомендации для:"
             ))),
