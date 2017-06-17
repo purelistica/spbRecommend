@@ -7,10 +7,10 @@ source_url("https://gist.githubusercontent.com/paulokopny/63daf8ca42f9d842b122/r
 source_url("https://raw.githubusercontent.com/Dementiy/vkR/master/examples/execute.R")
 #http://wardoctor.nosoc.io/public/paulokopny/vkauth/karepin.html
 
-vk <- get.vk.connector(code = "COde", app = "karepin", debug = T) 
-setAccessToken(access_token='ТОКЕН ИЗ ПРЕДЫДУЩЕЙ ФУНКЦИИ')
+vk <- get.vk.connector(code = "359a388f06fbac9264", app = "karepin", debug = T) 
+setAccessToken(access_token='2831d46ed4624cb57f0d720f9d9396478cca91429bd1c708fc33e25fd4abad6f7e6bd637c8de6a92a67ab')
 
-vkOAuth(5585217, 'groups', 'ЗДЕСЬ СВОЮ ПОЧТУ ОТ ВК', 'ПАРОЛЬ')
+vkOAuth(5585217, 'groups', 'почта', 'пароль')
 
 #Функция для выкачки пользователей 
 get_users <- function(user_ids='', fields='', name_case='') {
@@ -37,6 +37,12 @@ get_users(user_ids = "1")
 
 #выгрузка пользователей
 users_list <- read_csv("~/spbRecommend/users_list.csv")
+users_list <- read_csv("~/spbRecommend/final_data/users_list.csv")
+
+#догрузка пользователей 
+users_get <- read_csv("~/spbRecommend/users_get.csv")[-1]
+users_list= subset(users_list, !(users %in% users_get$id))
+#
 
 d = users_list$users
 d = split(d, ceiling(seq_along(d)/2000))
@@ -55,8 +61,12 @@ for(u in 1:length(d)){
   x = plyr::rbind.fill(x, a) 
   Sys.sleep(1) 
 } 
-x = x %>% select()
-write.csv(x, 'users_get.csv')
+
+x0 = plyr::rbind.fill(users_get, x)
+write.csv(x0, '/students/aabakhitova/users_get.csv')
+
+
+
 
 ```
 
