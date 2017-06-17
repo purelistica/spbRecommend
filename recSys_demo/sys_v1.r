@@ -1,7 +1,7 @@
 
 ######################## RECOMMENDATION SYSTEM ########################
 
-load("~/spbRecommend/recSys_demo/test_1710.RData")
+load("~/spbRecommend/recSys_demo/test_1714.RData")
 source('~/spbRecommend/r_shiny.R')
 
 y = 3718736

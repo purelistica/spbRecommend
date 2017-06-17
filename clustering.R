@@ -122,7 +122,7 @@ colnames(cat_matrix) <- make.names(colnames(cat_matrix), unique = T, allow_ = T)
 
 ###
 
-fin_mat <- inner_join(cat_matrix, users, by = c("users"="id")) %>% dplyr::select(-age, -sex)
+fin_mat <- inner_join(cat_matrix, users, by = c("users"="id")) %>% dplyr::select(-age, sex)
 # fin_mat$sex <- fin_mat$sex-1
 #fin_mat$age <- fin_mat$age/10
 
@@ -133,21 +133,21 @@ dist_mat = dist(fin_mat)
 
 res.hc0 <- hclust(dist_mat, method = "ward.D2")
 res.hc1 <- hclust(dist_mat, method = "ward.D")
-res.hc2 <- hclust(dist_mat, method = "complete")
+# res.hc2 <- hclust(dist_mat, method = "complete")
 #res.hc3 <- hclust(dist_mat, method = "single")
-plot(res.hc1, cex = 0.01)
+plot(res.hc0, cex = 0.01)
 
 #
 
-clust_8 <- cutree(res.hc1, 50)
+clust_10 <- cutree(res.hc1, 10)
 
-clust8 <- as.data.frame(cbind(cat_matrix$users, clust_8))
-clust8$clust_8 <- as.factor(clust8$clust_8)
-colnames(clust8) <- c("users","clust")
+clust10 <- as.data.frame(cbind(cat_matrix$users, clust_10))
+clust10$clust_10 <- as.factor(clust10$clust_10)
+colnames(clust10) <- c("users","clust")
 
 # descriptive
 
-summary(clust8$clust)
+summary(clust10$clust)
 clust8_sum <- inner_join(clust8, users, by = c("users"="id"))
 
 dplyr::filter(clust8_sum, clust=='1') %>% summarise(mean(sex),mean(age, na.rm = T))
@@ -169,12 +169,12 @@ clust8_cat <- inner_join(clust8, users_pref, by="users") %>%
 
 #
 
-clust8_pref <- inner_join(clust8, users_match, by="users") %>%
+clust10_pref <- inner_join(clust10, users_match, by="users") %>%
   inner_join(tags, by='kudago_id')
-clust8_pref <- clust8_pref[!duplicated(clust8_pref),]
+clust10_pref <- clust10_pref[!duplicated(clust10_pref),]
 
-clust_tot <- group_by(clust8_pref, tag) %>% summarise(cnt_l=n())
-clust_tot_c <- group_by(clust8_pref, clust, tag) %>% summarise(cnt_c=n()) %>%
+clust_tot <- group_by(clust10_pref, tag) %>% summarise(cnt_l=n())
+clust_tot_c <- group_by(clust10_pref, clust, tag) %>% summarise(cnt_c=n()) %>%
   inner_join(clust_tot, by="tag") %>%
   mutate(share=cnt_c/cnt_l)
 
@@ -186,8 +186,8 @@ dplyr::filter(clust_tot_c, clust=='5') %>% arrange(desc(share)) %>% top_n(10)
 # dplyr::filter(clust8_cat, clust=='3') %>% arrange(desc(avg)) %>% top_n(10)
 # dplyr::filter(clust8_cat, clust=='6') %>% arrange(desc(avg)) %>% top_n(10)
 
-write.csv(clust_tot_c, "~/spbRecommend/data_for_tests/clust_tot_c.csv", row.names = F)
-write.csv(clust8, "~/spbRecommend/data_for_tests/clust8.csv", row.names = F)
+write.csv(clust_tot_c, "~/spbRecommend/data_for_tests/clust_tot_c2.csv", row.names = F)
+write.csv(clust10, "~/spbRecommend/data_for_tests/clust10.csv", row.names = F)
 
 ### категории по кластерам
 
@@ -200,12 +200,12 @@ write.csv(clust8, "~/spbRecommend/data_for_tests/clust8.csv", row.names = F)
 library("class")
 library(caret)
 
-knn_data <- inner_join(clust8, users, by=c("users"="id")) %>%
+knn_data <- inner_join(clust10, users, by=c("users"="id")) %>%
   inner_join(sub_mat, by=c("users"="id")) %>%
   dplyr::select(-users)
 knn_data[is.na(knn_data)] = 0
 
-write.csv(knn_data, "~/spbRecommend/data_for_tests/knn_data.csv")
+write.csv(knn_data, "~/spbRecommend/data_for_tests/knn_data2.csv", row.names = F)
 
 # set.seed(17)
 # test.ind = sample(seq_len(nrow(knn_data)), size = nrow(knn_data)*0.2)

@@ -11,7 +11,8 @@ knn_data <- read_csv("~/spbRecommend/data_for_tests/knn_data.csv")
 # data
 
 # kudago_rec <- dplyr::filter(kudago_all, act == 1)
-# kudago_rec$description <- gsub("<[^>]+>", "", kudago_rec$description)
+# kudago_rec$description1 <- gsub("<[^>]+>", "", kudago_rec$description)
+# kudago_rec$description <- gsub("<.*?>", "", kudago_rec$description)
 # write.csv(kudago_rec,"~/spbRecommend/data_for_tests/kudago_rec.csv", row.names = F)
 
 kudago_rec <- read_csv("~/spbRecommend/data_for_tests/kudago_rec.csv")
