@@ -38,8 +38,12 @@ main = knn_data[-test.ind,]
 # 
 # knn_model2 <- knn3(clust~., data = main)
 
-x <- data.frame(t(as.data.frame(c(1,20,1,0,1,0,1,0,1))))
-colnames(x) <- colnames(dplyr::select(main, -clust))
+source('~/spbRecommend/r_shiny.R')
+
+x <- vk_get(y)[,4:12]
+
+# x <- data.frame(t(as.data.frame(c(1,20,1,0,1,0,1,0,1))))
+# colnames(x) <- colnames(dplyr::select(main, -clust))
 
 # knn_pred <- predict(knn_model2, x, type = "class")
 # 

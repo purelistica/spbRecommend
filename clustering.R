@@ -18,25 +18,25 @@ users <- dplyr::select(users, id, sex, age)
 
 # categories
 
-s <- strsplit(kudago_match$categories, split = "###")
-cat <- data.frame(kudago_id = rep(kudago_match$kudago_id, 
-                                  sapply(s, length)), category = unlist(s))
-
-cat$category <- as.character(cat$category)
-cat$category <- ifelse(cat$category == "shops", "shopping", cat$category)
-cat$category <- ifelse(cat$category == "theater", "theatre", cat$category)
-cat$category <- ifelse(cat$category == "questroom", "quest", cat$category)
-cat$category <- as.factor(cat$category)
+# s <- strsplit(kudago_match$categories, split = "###")
+# cat <- data.frame(kudago_id = rep(kudago_match$kudago_id, 
+#                                   sapply(s, length)), category = unlist(s))
+# 
+# cat$category <- as.character(cat$category)
+# cat$category <- ifelse(cat$category == "shops", "shopping", cat$category)
+# cat$category <- ifelse(cat$category == "theater", "theatre", cat$category)
+# cat$category <- ifelse(cat$category == "questroom", "quest", cat$category)
+# cat$category <- as.factor(cat$category)
 
 # post frequency by category
-cat_freq <- group_by(cat, category) %>% summarise(freq = n())
+# cat_freq <- group_by(cat, category) %>% summarise(freq = n())
 
 # стоит убрать категории, встречающиеся в четверти постов и более, как нерепрезентативные
 # а также редкие категории
-cat_todrop <- dplyr::filter(cat_freq, 
-                            freq >= length(unique(kudago_match$kudago_id))/4 |
-                            freq < 10)
-cat <- anti_join(cat, cat_todrop, by="category")
+# cat_todrop <- dplyr::filter(cat_freq, 
+#                             freq >= length(unique(kudago_match$kudago_id))/4 |
+#                             freq < 10)
+# cat <- anti_join(cat, cat_todrop, by="category")
 
 # tags
 
@@ -53,43 +53,43 @@ tags <- anti_join(tags, tags_todrop, by="tag")
 
 # category/tag -- user
 
-cat_usr <- inner_join(cat, users_match, by = "kudago_id")
-cat_usr <- group_by(cat_usr, category, users) %>% summarize(cnt_l=n())
+# cat_usr <- inner_join(cat, users_match, by = "kudago_id")
+# cat_usr <- group_by(cat_usr, category, users) %>% summarize(cnt_l=n())
 
 tags_usr <- inner_join(tags, users_match, by = "kudago_id")
 tags_usr <- group_by(tags_usr, tag, users) %>% summarize(cnt_l=n())
 
 #
 
-users_cat <- ungroup(cat_usr) %>% 
-  group_by(users) %>% summarise(cnt_c=n(), sum_l=sum(cnt_l)) %>%
-  inner_join(users_list, by = "users") %>% 
-  dplyr::filter(cnt_c < sum_l & cnt_c > 2 & sum_l > 10)
+# users_cat <- ungroup(cat_usr) %>% 
+#   group_by(users) %>% summarise(cnt_c=n(), sum_l=sum(cnt_l)) %>%
+#   inner_join(users_list, by = "users") %>% 
+#   dplyr::filter(cnt_c < sum_l & cnt_c > 2 & sum_l > 10)
 
 users_tags <- ungroup(tags_usr) %>% 
   group_by(users) %>% summarise(cnt_t=n(), sum_lt=sum(cnt_l)) %>%
   inner_join(users_list, by = "users") %>% 
-  dplyr::filter(cnt_t < sum_lt & cnt_t > 2)
+  dplyr::filter(cnt_t < sum_lt & cnt_t > 4 & sum_lt > 15)
 
 # weights for categories
 
-cat_freq <- group_by(cat, category) %>% summarise(freq = n())
-cat_freq <- mutate(cat_freq, iprob=1-(freq/sum(cat_freq$freq)))
-
-cat_flt <- inner_join(cat_usr, users, by = c("users"="id")) %>%
-  dplyr::select(1:3) 
-cat_flt <- dplyr::select(users_cat, users) %>%
-  inner_join(cat_flt, by = "users")
-
-cat_flt_freq <- group_by(cat_flt, category) %>% summarise(freq = sum(cnt_l),
-                                                          uniq = n())
-cat_flt <- inner_join(cat_flt, users_cat, by = "users")
-cat_flt$norm <- cat_flt$cnt_l / cat_flt$sum_l
-
-cat_pref <- inner_join(cat_flt, cat_freq, by='category') %>%
-  mutate(val=norm*iprob) %>%
-  dplyr::select(users,category,val) %>%
-  rename(gr=category)
+# cat_freq <- group_by(cat, category) %>% summarise(freq = n())
+# cat_freq <- mutate(cat_freq, iprob=1-(freq/sum(cat_freq$freq)))
+# 
+# cat_flt <- inner_join(cat_usr, users, by = c("users"="id")) %>%
+#   dplyr::select(1:3) 
+# cat_flt <- dplyr::select(users_cat, users) %>%
+#   inner_join(cat_flt, by = "users")
+# 
+# cat_flt_freq <- group_by(cat_flt, category) %>% summarise(freq = sum(cnt_l),
+#                                                           uniq = n())
+# cat_flt <- inner_join(cat_flt, users_cat, by = "users")
+# cat_flt$norm <- cat_flt$cnt_l / cat_flt$sum_l
+# 
+# cat_pref <- inner_join(cat_flt, cat_freq, by='category') %>%
+#   mutate(val=norm*iprob) %>%
+#   dplyr::select(users,category,val) %>%
+#   rename(gr=category)
 
 # weights for tags
 
@@ -112,7 +112,7 @@ tags_pref <- inner_join(tags_flt, tags_freq, by='tag') %>%
   dplyr::select(users,tag,val) %>%
   rename(gr=tag)
 
-tags_pref <- dplyr::filter(tags_pref, users %in% unique(cat_pref$users))
+# tags_pref <- dplyr::filter(tags_pref, users %in% unique(cat_pref$users))
 
 #
 
@@ -122,8 +122,8 @@ colnames(cat_matrix) <- make.names(colnames(cat_matrix), unique = T, allow_ = T)
 
 ###
 
-fin_mat <- inner_join(cat_matrix, users, by = c("users"="id")) %>% dplyr::select(-age)
-fin_mat$sex <- fin_mat$sex-1
+fin_mat <- inner_join(cat_matrix, users, by = c("users"="id")) %>% dplyr::select(-age, -sex)
+# fin_mat$sex <- fin_mat$sex-1
 #fin_mat$age <- fin_mat$age/10
 
 fin_mat[is.na(fin_mat)] = 0
@@ -132,14 +132,14 @@ dist_mat = dist(fin_mat)
 # CLUSTERING
 
 res.hc0 <- hclust(dist_mat, method = "ward.D2")
-#res.hc1 <- hclust(dist_mat, method = "average")
+res.hc1 <- hclust(dist_mat, method = "ward.D")
 res.hc2 <- hclust(dist_mat, method = "complete")
 #res.hc3 <- hclust(dist_mat, method = "single")
-plot(res.hc0, cex = 0.01)
+plot(res.hc1, cex = 0.01)
 
 #
 
-clust_8 <- cutree(res.hc0, 8)
+clust_8 <- cutree(res.hc1, 50)
 
 clust8 <- as.data.frame(cbind(cat_matrix$users, clust_8))
 clust8$clust_8 <- as.factor(clust8$clust_8)
@@ -200,21 +200,22 @@ write.csv(clust8, "~/spbRecommend/data_for_tests/clust8.csv", row.names = F)
 library("class")
 library(caret)
 
-knn_data <- inner_join(clust8, users, by=c("users"="id")) %>% 
-  inner_join(sub_mat, by=c("users"="id")) %>%
-  dplyr::select(-users)
+knn_data <- inner_join(clust8, users, by=c("users"="id")) 
+# %>% 
+#   inner_join(sub_mat, by=c("users"="id")) %>%
+#   dplyr::select(-users)
 knn_data[is.na(knn_data)] = 0
 
 write.csv(knn_data, "~/spbRecommend/data_for_tests/knn_data.csv")
 
-set.seed(17)
-test.ind = sample(seq_len(nrow(knn_data)), size = nrow(knn_data)*0.2)
-test = knn_data[test.ind,]
-main = knn_data[-test.ind,]
-
-knn_result <- class::knn(train=dplyr::select(main, -clust), test=dplyr::select(test, -clust), cl=main$clust,  k=3)
-
-confusionMatrix(knn_result,test$clust)
+# set.seed(17)
+# test.ind = sample(seq_len(nrow(knn_data)), size = nrow(knn_data)*0.2)
+# test = knn_data[test.ind,]
+# main = knn_data[-test.ind,]
+# 
+# knn_result <- class::knn(train=dplyr::select(main, -clust), test=dplyr::select(test, -clust), cl=main$clust,  k=3)
+# 
+# confusionMatrix(knn_result,test$clust)
 
 
 

@@ -1,11 +1,16 @@
 library(tidyverse)
 library(vkR)
 library(devtools)
+
+
+
 setAccessToken(access_token='2831d46ed4624cb57f0d720f9d9396478cca91429bd1c708fc33e25fd4abad6f7e6bd637c8de6a92a67ab')
 
 vkOAuth(5585217, 'groups', 'alina.bahitova@gmail.com', 'Qdecamz1')
 
 y = 3718736
+
+vk_get <- function(y){
 
 subscriptions = data.frame()
 
@@ -40,7 +45,8 @@ if (is.null(a$occupation)==F){
   a = a %>% select( -occupation) } 
 user = plyr::rbind.fill(user, a) %>% select(id:sex, bdate)
 user$bdate = stringr::str_extract(user$bdate, "[0-9]{4}") %>% as.numeric()
-user$bdate = 2017-user$bdate
+user$age = 2017-user$bdate
+user <- dplyr::select(user, -bdate)
 
 subscriptions_matrix = data.frame(matrix(ncol = 7, nrow = 0))
 x <- c('vandroukiru','sci','evil_incorparate',
@@ -49,7 +55,7 @@ x <- c('vandroukiru','sci','evil_incorparate',
 colnames(subscriptions_matrix) <- x
 subscriptions_matrix[1,] = 0
 
-i = "evil_incorparate"
+# i = "evil_incorparate"
 for (i in subscriptions$screen_name) {
   if ((i %in% x) == T) {
     io = grep(i, colnames(subscriptions_matrix))
@@ -60,3 +66,7 @@ for (i in subscriptions$screen_name) {
 
 user_final = cbind(user, subscriptions_matrix)
 user_final[is.na(user_final)] = 0
+
+return(user_final)
+
+}
