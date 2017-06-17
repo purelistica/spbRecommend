@@ -1,6 +1,6 @@
 
 
-sub2 <- read_csv('/students/aabakhitova/spb_files/users_subscriptions.csv')
+sub <- read_csv('/students/aabakhitova/spb_files/users_subscriptions.csv')
 sub <- sub[,1:3]
 sub <- dplyr::select(fin_mat, users) %>% inner_join(sub, by=c("users"="id"))
 
@@ -22,7 +22,10 @@ sub_uniq <- dplyr::filter(sub_uniq, cnt > 100 & cnt < length(unique(sub$id))/4)
 
 sub_test <- dplyr::filter(sub, screen_name %in% c('vandroukiru','sci','evil_incorparate',
                                                   'vecherniy.urgant','just_cook',
-                                                  'modaguide','aliexpress'))
+                                                  'modaguide','aliexpress','dayvinchik',
+                                                  'pikabu','ti_nepoverish','bez_kota',
+                                                  'ideasdecor','english_is_fun','40kg',
+                                                  's_arcazm','zenit','marvel_dc'))
 sub_test <- sub_test[!duplicated(sub_test),]
 sub_test$val <- 1
 
@@ -96,10 +99,17 @@ write.csv(mmb, '~/spbRecommend/data_for_tests/mmb.csv')
 
 # select subs
 
-sub_user <- dplyr::select(sub, users, screen_name)
-sub_user <- sub_user[!duplicated(sub_user),]
-sub_user$val <- 1
-write.csv(sub_user,"~/spbRecommend/data_for_tests/sub_user.csv", row.names = F)
+# sub_user <- dplyr::select(sub, users, screen_name)
+# sub_user <- sub_user[!duplicated(sub_user),]
+# sub_user$val <- 1
+# write.csv(sub_user,"~/spbRecommend/data_for_tests/sub_user.csv", row.names = F)
+
+sub_user <- read_csv("~/spbRecommend/data_for_tests/sub_user.csv")
+
+sub_uniq <- group_by(sub_user, screen_name) %>% summarise(n())
+j <- sub_uniq[1:3,]
+
+sub_user <- inner_join(sub_user, j, by="screen_name") 
 
 sub_mat <- dcast(sub_user, users~screen_name, value.var = "val")
 colnames(sub_mat) <- make.names(colnames(sub_mat), unique = T, allow_ = T)

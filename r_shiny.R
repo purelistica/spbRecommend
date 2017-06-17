@@ -48,10 +48,13 @@ user$bdate = stringr::str_extract(user$bdate, "[0-9]{4}") %>% as.numeric()
 user$age = 2017-user$bdate
 user <- dplyr::select(user, -bdate)
 
-subscriptions_matrix = data.frame(matrix(ncol = 7, nrow = 0))
+subscriptions_matrix = data.frame(matrix(ncol = 17, nrow = 0))
 x <- c('vandroukiru','sci','evil_incorparate',
        'vecherniy.urgant','just_cook',
-       'modaguide','aliexpress')
+       'modaguide','aliexpress','dayvinchik',
+       'pikabu','ti_nepoverish','bez_kota',
+       'ideasdecor','english_is_fun','40kg',
+       's_arcazm','zenit','marvel_dc')
 colnames(subscriptions_matrix) <- x
 subscriptions_matrix[1,] = 0
 

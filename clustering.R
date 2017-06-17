@@ -200,10 +200,9 @@ write.csv(clust8, "~/spbRecommend/data_for_tests/clust8.csv", row.names = F)
 library("class")
 library(caret)
 
-knn_data <- inner_join(clust8, users, by=c("users"="id")) 
-# %>% 
-#   inner_join(sub_mat, by=c("users"="id")) %>%
-#   dplyr::select(-users)
+knn_data <- inner_join(clust8, users, by=c("users"="id")) %>%
+  inner_join(sub_mat, by=c("users"="id")) %>%
+  dplyr::select(-users)
 knn_data[is.na(knn_data)] = 0
 
 write.csv(knn_data, "~/spbRecommend/data_for_tests/knn_data.csv")
