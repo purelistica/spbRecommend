@@ -12,7 +12,7 @@ knn_data <- read_csv("~/spbRecommend/data_for_tests/knn_data.csv")
 
 # kudago_rec <- dplyr::filter(kudago_all, act == 1)
 # kudago_rec$description <- gsub("<[^>]+>", "", kudago_rec$description)
-# write.csv(kudago_rec,"~/spbRecommend/data_for_tests/kudago_rec.csv")
+# write.csv(kudago_rec,"~/spbRecommend/data_for_tests/kudago_rec.csv", row.names = F)
 
 kudago_rec <- read_csv("~/spbRecommend/data_for_tests/kudago_rec.csv")
 
@@ -27,17 +27,20 @@ library("class")
 library(caret)
 
 knn_data$clust <- as.factor(knn_data$clust)
-knn_data <- dplyr::select(knn_data, -X1)
-set.seed(17)
-test.ind = sample(seq_len(nrow(knn_data)), size = nrow(knn_data)*0.2)
-test = knn_data[test.ind,]
-main = knn_data[-test.ind,]
+# set.seed(17)
+# test.ind = sample(seq_len(nrow(knn_data)), size = nrow(knn_data)*0.2)
+# test = knn_data[test.ind,]
+# main = knn_data[-test.ind,]
+
+knn_fit <- train(clust ~., data = knn_data, method = "knn", tuneLength=5)
+
+
+# test_pred <- predict(knn_fit, newdata = test)
+# confusionMatrix(test_pred, test$clust)
 
 source('~/spbRecommend/r_shiny.R')
-
+y = 3718736
 x <- vk_get(y)[,4:22]
-
-knn_fit <- train(clust ~., data = main, method = "knn")
 
 test_pred <- predict(knn_fit, newdata = x)
 test_pred[1]

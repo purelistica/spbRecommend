@@ -8,8 +8,6 @@ setAccessToken(access_token='2831d46ed4624cb57f0d720f9d9396478cca91429bd1c708fc3
 
 vkOAuth(5585217, 'groups', 'alina.bahitova@gmail.com', 'Qdecamz1')
 
-y = 3718736
-
 vk_get <- function(y){
 
 subscriptions = data.frame()
