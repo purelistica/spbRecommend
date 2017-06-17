@@ -135,7 +135,7 @@ ggplot(data=f, aes(x=Gender, y=count, fill = occupationType)) +
 
 ## Интерфейс
 
-Тут можно ссылку на приложение
+[ссылка](https://aabakhitova.shinyapps.io/shiny/)
 
 <div class="centered">
 ![](cdelal.png)
