@@ -1,26 +1,30 @@
 ```{r}
 users_get <- read_csv("/students/aabakhitova/users_get.csv")[-1]
-
-users_get = гыук
-
+  
 subscriptions = data.frame()
-for(i in users_get$id[7102:41757]){ 
+for(i in users_get$id[39666:41757]){ 
   x1 = try(usersGetSubscriptions(user_id = i, extended = "0", offset = 0, count = 999, flatten = T), silent = TRUE)
 
   if (class(x1)!="try-error") {
-  x1 = usersGetSubscriptions(user_id = i, extended = "0", offset = 0, count = 999, flatten = T)
+    x1 = usersGetSubscriptions(user_id = i, extended = "0", offset = 0, count = 999, flatten = T)
     if (length(x1$groups$id)>1){
-  subscriptions_temp = x1$groups %>% as.data.frame()
-  subscriptions_temp$id = i
-  subscriptions = plyr::rbind.fill(subscriptions, subscriptions_temp)} 
-  print(x1$groups[[1]][1])
+    subscriptions_temp = x1$groups %>% as.data.frame()
+    subscriptions_temp$id = i
+    subscriptions = plyr::rbind.fill(subscriptions, subscriptions_temp)} 
+    print(x1$groups[[1]][1])
+  }
 }
-
-} 
 
 grep(i, users_get$id)
 i
-write_csv(subscriptions, "/students/aabakhitova/spb_files/users_subscriptions.csv")
+
+subscriptions0$id %>% unique() %>% length()
+
+subscriptions3 = read_csv("/students/adkuznetsova_1/users_subscriptions3.csv")
+subscriptions2 = read_csv("/students/kskonstantinova/users_subscriptions2.csv")
+
+subscriptions0 = rbind(subscriptions0, subscriptions2)
+write_csv(subscriptions0, "/students/aabakhitova/spb_files/users_subscriptions.csv")
 
 ```
 

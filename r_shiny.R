@@ -6,7 +6,7 @@ library(devtools)
 
 setAccessToken(access_token='2831d46ed4624cb57f0d720f9d9396478cca91429bd1c708fc33e25fd4abad6f7e6bd637c8de6a92a67ab')
 
-vkOAuth(5585217, 'groups', 'alina.bahitova@gmail.com', 'Qdecamz1')
+vkOAuth(5585217, 'groups', 'почта', 'пароль')
 
 vk_get <- function(y){
 
