@@ -69,7 +69,7 @@ f=mutate(f, Gender=ifelse(sex==1, "female", "male"))
 
 ```{r f, echo=F, fig.width = 4, fig.height = 5}
 ggplot(data=f, aes(x=Gender, y=count, fill = occupationType)) +
-    geom_bar(stat="identity") + ggtitle("Чем занимаются")
+    geom_bar(stat="identity") + ggtitle("Чем занимаются по полу")
 ```
   
 Личная информация о пользователях, лайкавших посты в группе KudaGo ВКонтакте: 
@@ -91,7 +91,7 @@ ggplot(data=f, aes(x=Gender, y=count, fill = occupationType)) +
 ```{r p, echo=F, warning=F, fig.width = 4, fig.height = 5}
 p <- ggplot(not_empty, aes(occupationType, age))
 p + geom_boxplot()+ 
-  ggtitle("Чем занимаются")
+  ggtitle("Чем занимаются по возрасту")
 ```
   
 Личная информация о пользователях, лайкавших посты в группе KudaGo ВКонтакте: 
