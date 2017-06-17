@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 1. Пользователь авторизуется ВКонтакте
 2. Machine Learning
-2. Выводится рекомендация событий с Питере
+2. Выводится рекомендация событий в Питере
 3. Profit
 
 <div class="centered">
@@ -146,13 +146,6 @@ p + geom_boxplot()+
 
 Тут можно ссылку на приложение
 
-## Same text in center
-
 <div class="centered">
-Here is text
+![](cdelal.png)
 </div>
-
-<div class="red2">
-Red text
-</div>
-
